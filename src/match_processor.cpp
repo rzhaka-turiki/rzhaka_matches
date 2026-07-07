@@ -12,7 +12,6 @@ void MatchProcessor::process_token(const ActiveToken& token) {
 
     try {
         std::string response = api_.get(url);
-        spdlog::info("Token {} raw response (first 500 chars): {}", token.id, response.substr(0, 500));
         parse_and_store(token.id, response);
     }
     catch (const std::exception& e) {
