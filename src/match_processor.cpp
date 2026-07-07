@@ -48,7 +48,8 @@ void MatchProcessor::parse_and_store(int token_id, const std::string& json_respo
                     "INSERT INTO match_players (match_id, nid_hash, player_name, team_name, team_num, team_placement, "
                     "character_name, hardware, kills, assists, knockdowns, damage_dealt, headshots, shots, hits, survival_time, "
                     "respawns_given, revives_given) "
-                    "VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18)",
+                    "VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18) "
+                    "ON CONFLICT (match_id, nid_hash) DO NOTHING",
                     match_db_id,
                     p.value("nidHash", ""),
                     p.value("playerName", ""),
