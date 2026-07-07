@@ -1,7 +1,7 @@
 #include "match_processor.h"
 #include <nlohmann/json.hpp>
 #include <spdlog/spdlog.h>
-#include "database.h"  // для ActiveToken
+#include "database.h"
 
 MatchProcessor::MatchProcessor(pqxx::connection& conn, const ApiClient& api, const std::string& base_url)
     : conn_(conn), api_(api), base_url_(base_url) {}
@@ -9,16 +9,23 @@ MatchProcessor::MatchProcessor(pqxx::connection& conn, const ApiClient& api, con
 void MatchProcessor::process_token(const ActiveToken& token) {
     std::string url = base_url_ + "?token=" + token.token;
     spdlog::info("Fetching token id {}", token.id);
-    std::string response = api_.get(url);
-    std::string response = http_get(url);
-    spdlog::info("Token {} raw response: {}", token_id, response);
-    parse_and_store(token.id, response);
+
+    try {
+        std::string response = api_.get(url);
+        spdlog::info("Token {} raw response (first 500 chars): {}", token.id, response.substr(0, 500));
+        parse_and_store(token.id, response);
+    }
+    catch (const std::exception& e) {
+        spdlog::error("Failed to process token {}: {}", token.id, e.what());
+    }
 }
 
 void MatchProcessor::parse_and_store(int token_id, const std::string& json_response) {
     auto json = nlohmann::json::parse(json_response);
-    if (!json.contains("matches") || !json["matches"].is_array())
+    if (!json.contains("matches") || !json["matches"].is_array()) {
+        spdlog::warn("Token {}: 'matches' field missing or not an array", token_id);
         return;
+    }
 
     pqxx::work txn(conn_);
     for (const auto& match : json["matches"]) {
@@ -27,7 +34,6 @@ void MatchProcessor::parse_and_store(int token_id, const std::string& json_respo
         bool aim_assist = match.value("aim_assist_allowed", false);
         int64_t match_start = match.value("match_start", 0);
 
-        // Вставка или обновление матча
         pqxx::result res = txn.exec_params(
             "INSERT INTO matches (token_id, mid, map_name, aim_assist, match_start) "
             "VALUES ($1, $2, $3, $4, to_timestamp($5)) "
@@ -37,7 +43,6 @@ void MatchProcessor::parse_and_store(int token_id, const std::string& json_respo
         );
         int match_db_id = res[0][0].as<int>();
 
-        // Игроки
         if (match.contains("player_results") && match["player_results"].is_array()) {
             for (const auto& p : match["player_results"]) {
                 txn.exec_params(
