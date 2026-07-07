@@ -15,7 +15,7 @@ std::vector<ActiveToken> Database::fetch_active_tokens() {
     std::vector<ActiveToken> result;
     pqxx::work txn(conn_);
     auto rows = txn.exec(
-        "SELECT id, admin_token FROM tokens WHERE NOW() BETWEEN activation AND expiration"
+        "SELECT id, stats_token FROM tokens WHERE NOW() BETWEEN activation AND expiration"
     );
     for (const auto& row : rows) {
         result.push_back({ row[0].as<int>(), row[1].as<std::string>() });
