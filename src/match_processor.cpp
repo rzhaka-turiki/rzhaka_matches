@@ -10,6 +10,8 @@ void MatchProcessor::process_token(const ActiveToken& token) {
     std::string url = base_url_ + "?token=" + token.token;
     spdlog::info("Fetching token id {}", token.id);
     std::string response = api_.get(url);
+    std::string response = http_get(url);
+    spdlog::info("Token {} raw response: {}", token_id, response);
     parse_and_store(token.id, response);
 }
 
