@@ -1,7 +1,9 @@
-name: Build and Deploy
+name: CI/CD
 
 on:
   push:
+    branches: [ master ]
+  pull_request:
     branches: [ master ]
 
 env:
@@ -9,33 +11,38 @@ env:
   IMAGE_NAME: ${{ github.repository }}
 
 jobs:
-  build-and-push:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build Docker image (without push)
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: false        
+          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:test
+
+  deploy:
+    needs: build
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     permissions:
       contents: read
       packages: write
-
     steps:
       - uses: actions/checkout@v4
-
       - name: Log in to GitHub Container Registry
         uses: docker/login-action@v3
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
         with:
           context: .
           push: true
           tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
-
-  deploy:
-    needs: build-and-push
-    runs-on: ubuntu-latest
-    steps:
       - name: Deploy to VPS via SSH
         uses: appleboy/ssh-action@v1.0.0
         with:
@@ -47,7 +54,7 @@ jobs:
             docker stop fetcher || true
             docker rm fetcher || true
             docker run -d --name fetcher \
-              --network host \
               --restart unless-stopped \
               -v /opt/fetcher/config.json:/etc/fetcher/config.json \
+              --add-host=host.docker.internal:host-gateway \
               ghcr.io/${{ github.repository }}:latest
