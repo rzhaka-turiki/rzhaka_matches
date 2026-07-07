@@ -1,0 +1,5 @@
+build/
+out/
+config.json
+*.exe
+.vs/
