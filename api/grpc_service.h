@@ -1,6 +1,6 @@
 #pragma once
 #include <grpcpp/grpcpp.h>
-#include "proto/match_service.grpc.pb.h"
+#include "match_service.grpc.pb.h"
 #include "database.h"
 #include <string>
 
