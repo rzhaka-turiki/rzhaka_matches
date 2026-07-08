@@ -3,7 +3,7 @@
 #include <thread>
 
 Scheduler::Scheduler(Database& db, MatchProcessor& processor, int interval_seconds)
-    : db_(db), processor_(processor), interval_seconds_(interval_seconds) {}
+    : db_(db), token_cache_(token_cache), processor_(processor), interval_seconds_(interval_seconds) {}
 
 void Scheduler::run() {
     spdlog::info("Scheduler started, interval {}s", interval_seconds_);
