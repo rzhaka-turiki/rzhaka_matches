@@ -1,0 +1,16 @@
+FROM ubuntu:22.04 AS builder
+RUN apt-get update && apt-get install -y \
+    build-essential cmake pkg-config \
+    libgrpc++-dev libprotobuf-dev protobuf-compiler-grpc \
+    libpqxx-dev libspdlog-dev nlohmann-json3-dev
+COPY . /app
+WORKDIR /app/build_api
+RUN cmake -DPROTO_DIR=/app/proto -DCMAKE_BUILD_TYPE=Release /app/api && \
+    make -j$(nproc)
+
+FROM ubuntu:22.04
+RUN apt-get update && apt-get install -y \
+    libgrpc++1 libpqxx-6.4 libspdlog1 ca-certificates && \
+    rm -rf /var/lib/apt/lists/*
+COPY --from=builder /app/build_api/match_api /usr/local/bin/match_api
+CMD ["match_api", "/etc/fetcher/config.json"]
