@@ -126,4 +126,3 @@ message CharacterStats {
   int32 kills = 3;
   int32 picks = 4;
 }
-}
