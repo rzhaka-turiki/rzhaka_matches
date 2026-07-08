@@ -10,6 +10,7 @@ find_package(PkgConfig REQUIRED)
 # gRPC через pkg-config
 pkg_check_modules(GRPC REQUIRED grpc++ grpc)
 find_program(GRPC_CPP_PLUGIN grpc_cpp_plugin REQUIRED)
+find_program(PROTOC protoc REQUIRED)
 
 # libpqxx через pkg-config (избегаем проблем с CMake-конфигом)
 pkg_check_modules(PQXX REQUIRED libpqxx)
@@ -22,36 +23,30 @@ if(NOT DEFINED PROTO_DIR)
     set(PROTO_DIR ${CMAKE_SOURCE_DIR}/../proto)
 endif()
 
-file(GLOB PROTO_FILES "${PROTO_DIR}/*.proto")
-find_program(PROTOC protoc REQUIRED)
+# Явно задаём proto-файл (он один)
+set(PROTO_FILE ${PROTO_DIR}/match_service.proto)
+set(PROTO_SRC ${CMAKE_CURRENT_BINARY_DIR}/match_service.pb.cc)
+set(GRPC_SRC ${CMAKE_CURRENT_BINARY_DIR}/match_service.grpc.pb.cc)
 
-foreach(PROTO_FILE ${PROTO_FILES})
-    get_filename_component(PROTO_NAME ${PROTO_FILE} NAME_WE)
-    set(PROTO_SRC ${CMAKE_CURRENT_BINARY_DIR}/${PROTO_NAME}.pb.cc)
-    set(GRPC_SRC ${CMAKE_CURRENT_BINARY_DIR}/${PROTO_NAME}.grpc.pb.cc)
-    list(APPEND PROTO_SRCS ${PROTO_SRC})
-    list(APPEND GRPC_SRCS ${GRPC_SRC})
-
-    add_custom_command(
-        OUTPUT ${PROTO_SRC} ${GRPC_SRC}
-        COMMAND ${PROTOC}
-            --proto_path=${PROTO_DIR}
-            --cpp_out=${CMAKE_CURRENT_BINARY_DIR}
-            --grpc_out=${CMAKE_CURRENT_BINARY_DIR}
-            --plugin=protoc-gen-grpc=${GRPC_CPP_PLUGIN}
-            ${PROTO_FILE}
-        DEPENDS ${PROTO_FILE}
-        COMMENT "Generating C++ code for ${PROTO_NAME}"
-    )
-endforeach()
+add_custom_command(
+    OUTPUT ${PROTO_SRC} ${GRPC_SRC}
+    COMMAND ${PROTOC}
+        --proto_path=${PROTO_DIR}
+        --cpp_out=${CMAKE_CURRENT_BINARY_DIR}
+        --grpc_out=${CMAKE_CURRENT_BINARY_DIR}
+        --plugin=protoc-gen-grpc=${GRPC_CPP_PLUGIN}
+        ${PROTO_FILE}
+    DEPENDS ${PROTO_FILE}
+    COMMENT "Generating gRPC code for match_service.proto"
+)
 
 add_executable(match_api
     main_api.cpp
     grpc_service.cpp
     database.cpp
     config.cpp
-    ${PROTO_SRCS}
-    ${GRPC_SRCS}
+    ${PROTO_SRC}
+    ${GRPC_SRC}
 )
 
 target_include_directories(match_api PRIVATE
