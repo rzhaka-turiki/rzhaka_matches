@@ -9,14 +9,15 @@ find_package(PkgConfig REQUIRED)
 
 # gRPC через pkg-config
 pkg_check_modules(GRPC REQUIRED grpc++ grpc)
-# Плагин для генерации кода
 find_program(GRPC_CPP_PLUGIN grpc_cpp_plugin REQUIRED)
 
-find_package(libpqxx REQUIRED)
+# libpqxx через pkg-config (избегаем проблем с CMake-конфигом)
+pkg_check_modules(PQXX REQUIRED libpqxx)
+
 find_package(spdlog REQUIRED)
 find_package(nlohmann_json REQUIRED)
 
-# Путь к proto-файлам (можно переопределить через -DPROTO_DIR)
+# Путь к proto-файлам
 if(NOT DEFINED PROTO_DIR)
     set(PROTO_DIR ${CMAKE_SOURCE_DIR}/../proto)
 endif()
@@ -24,7 +25,6 @@ endif()
 file(GLOB PROTO_FILES "${PROTO_DIR}/*.proto")
 find_program(PROTOC protoc REQUIRED)
 
-# Генерация .pb.cc/.grpc.pb.cc для каждого .proto
 foreach(PROTO_FILE ${PROTO_FILES})
     get_filename_component(PROTO_NAME ${PROTO_FILE} NAME_WE)
     set(PROTO_SRC ${CMAKE_CURRENT_BINARY_DIR}/${PROTO_NAME}.pb.cc)
@@ -59,12 +59,13 @@ target_include_directories(match_api PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}
     ${PROTOBUF_INCLUDE_DIRS}
     ${GRPC_INCLUDE_DIRS}
+    ${PQXX_INCLUDE_DIRS}
 )
 
 target_link_libraries(match_api PRIVATE
     ${PROTOBUF_LIBRARIES}
     ${GRPC_LINK_LIBRARIES}
-    libpqxx::pqxx
+    ${PQXX_LIBRARIES}
     spdlog::spdlog
     nlohmann_json::nlohmann_json
 )
