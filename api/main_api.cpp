@@ -1,6 +1,5 @@
 #include <grpcpp/grpcpp.h>
 #include <spdlog/spdlog.h>
-#include <grpcpp/ext/reflection.h>
 #include "grpc_service.h"
 #include "config.h"
 #include "database.h"
@@ -22,8 +21,6 @@ int main(int argc, char* argv[]) {
     builder.AddListeningPort("0.0.0.0:50051", grpc::InsecureServerCredentials());
     builder.RegisterService(&service);
     std::unique_ptr<grpc::Server> server(builder.BuildAndStart());
-    grpc::reflection::InitDefaultReflection();
-    spdlog::info("gRPC reflection enabled");
     spdlog::info("gRPC server listening on 0.0.0.0:50051");
 
     signal(SIGINT, [](int) { running = false; });
