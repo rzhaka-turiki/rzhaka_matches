@@ -2,7 +2,7 @@
 #include <spdlog/spdlog.h>
 #include <thread>
 
-Scheduler::Scheduler(Database& db, MatchProcessor& processor, int interval_seconds)
+Scheduler::Scheduler(Database& db, TokenCache& token_cache, MatchProcessor& processor, int interval_seconds)
     : db_(db), token_cache_(token_cache), processor_(processor), interval_seconds_(interval_seconds) {}
 
 void Scheduler::run() {
