@@ -24,7 +24,7 @@ int main(int argc, char* argv[]) {
 
     // Инициализация компонентов
     Database db(config.db_connection_string());
-    TokenCache token_cache(db.connection(), config.fetch_cache_seconds());
+    TokenCache token_cache(db, config.fetch_cache_seconds());
     ApiClient api;
     MatchProcessor processor(db.connection(), api, config.api_base_url());
     Scheduler scheduler(db, token_cache, processor, config.fetch_interval_seconds());

@@ -12,7 +12,7 @@ class Scheduler {
 private:
     Database& db_;
     MatchProcessor& processor_;
-    TokenCache token_cache_;
+    TokenCache& token_cache_;
     int interval_seconds_;
     std::atomic<bool> running_{ true };
 public:
