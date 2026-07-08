@@ -20,3 +20,7 @@ std::string Config::api_base_url() const {
 int Config::fetch_interval_seconds() const {
     return data_.value("fetch_interval_seconds", 5);
 }
+
+int fetch_interval_seconds() const {
+    return data_.value("token_cache_seconds", 60);
+}

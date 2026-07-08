@@ -1,6 +1,4 @@
 #include "scheduler.h"
-#include "database.h"
-#include "match_processor.h"
 #include <spdlog/spdlog.h>
 #include <thread>
 
@@ -11,7 +9,7 @@ void Scheduler::run() {
     spdlog::info("Scheduler started, interval {}s", interval_seconds_);
     while (running_) {
         try {
-            auto tokens = db_.fetch_active_tokens();
+            auto tokens = token_cache_.get_tokens();
             for (const auto& token : tokens) {
                 try {
                     processor_.process_token(token);

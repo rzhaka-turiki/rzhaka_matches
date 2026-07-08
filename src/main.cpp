@@ -3,6 +3,7 @@
 #include "config.h"
 #include "database.h"
 #include "api_client.h"
+#include "token_cache.h"
 #include "match_processor.h"
 #include "scheduler.h"
 #include <spdlog/spdlog.h>
@@ -23,9 +24,10 @@ int main(int argc, char* argv[]) {
 
     // Инициализация компонентов
     Database db(config.db_connection_string());
+    TokenCache token_cachea(db.connection(), config.token_cache_seconds());
     ApiClient api;
     MatchProcessor processor(db.connection(), api, config.api_base_url());
-    Scheduler scheduler(db, processor, config.fetch_interval_seconds());
+    Scheduler scheduler(db, token_cache, processor, config.fetch_interval_seconds());
 
     // Перехват сигналов
     std::signal(SIGINT, signal_handler);
