@@ -21,6 +21,6 @@ int Config::fetch_interval_seconds() const {
     return data_.value("fetch_interval_seconds", 5);
 }
 
-int fetch_interval_seconds() const {
+int Config::fetch_cache_seconds() const {
     return data_.value("token_cache_seconds", 60);
 }
