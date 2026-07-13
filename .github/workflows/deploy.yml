@@ -17,9 +17,13 @@ jobs:
       - uses: actions/checkout@v4
       - name: Install clang-format
         run: sudo apt-get update && sudo apt-get install -y clang-format
-      - name: Check formatting
-        run: |
-          find src/ api/ -name '*.cpp' -o -name '*.h' | xargs clang-format --dry-run --Werror
+
+      - name: Run clang-format with reviewdog
+        uses: reviewdog/action-clang-format@v1
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          reporter: github-pr-review
+          clang_format_version: 14
 
   cppcheck:
     runs-on: ubuntu-latest
