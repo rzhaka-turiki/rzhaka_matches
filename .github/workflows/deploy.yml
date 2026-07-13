@@ -61,14 +61,15 @@ jobs:
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_SSH_KEY }}
           script: |
-            docker pull ghcr.io/${{ github.repository }}:latest
+            echo "${{ secrets.GHCR_TOKEN }}" | docker login ghcr.io -u a1uka --password-stdin
+            docker pull ghcr.io/rzhaka-turiki/rzhaka_matches/fetcher:latest
             docker stop fetcher || true
             docker rm fetcher || true
             docker run -d --name fetcher \
-              --restart unless-stopped \
-              -v /opt/fetcher/config.json:/etc/fetcher/config.json \
-              --add-host=host.docker.internal:host-gateway \
-              ghcr.io/${{ github.repository }}/fetcher:latest
+            --restart unless-stopped \
+            -v /opt/fetcher/config.json:/etc/fetcher/config.json \
+            --add-host=host.docker.internal:host-gateway \
+            ghcr.io/${{ github.repository }}/fetcher:latest
 
   deploy-api:
     needs: build-and-push
@@ -80,6 +81,7 @@ jobs:
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_SSH_KEY }}
           script: |
+            echo "${{ secrets.GHCR_TOKEN }}" | docker login ghcr.io -u a1uka --password-stdin
             docker pull ghcr.io/${{ github.repository }}/api:latest
             docker stop match-api || true
             docker rm match-api || true
