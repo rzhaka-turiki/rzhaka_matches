@@ -26,7 +26,7 @@ jobs:
                    --suppress=missingInclude \
                    --suppress=unmatchedSuppression \
                    --suppress=unusedFunction \
-                   --error-exitcode=0 \
+                   --error-exitcode=1 \
                    --xml \
                    --xml-version=2 \
                    src/ api/ 2> cppcheck-report.xml || true
