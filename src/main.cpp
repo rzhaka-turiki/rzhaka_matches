@@ -15,7 +15,7 @@ void signal_handler(int) {
 }
 
 int main(int argc, char* argv[]) {
-    spdlog::info("Private Match Fetcher starting...");
+    spdlog::info("Private Match Handler starting...");
 
     // Чтение конфига
     std::string config_path = "config.json";
