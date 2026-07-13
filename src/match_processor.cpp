@@ -1,6 +1,9 @@
 #include "match_processor.h"
-#include <nlohmann/json.hpp>
+
 #include <spdlog/spdlog.h>
+
+#include <nlohmann/json.hpp>
+
 #include "database.h"
 
 MatchProcessor::MatchProcessor(pqxx::connection& conn, const ApiClient& api, const std::string& base_url)
@@ -13,8 +16,7 @@ void MatchProcessor::process_token(const ActiveToken& token) {
     try {
         std::string response = api_.get(url);
         parse_and_store(token.id, response);
-    }
-    catch (const std::exception& e) {
+    } catch (const std::exception& e) {
         spdlog::error("Failed to process token {}: {}", token.id, e.what());
     }
 }
@@ -38,37 +40,23 @@ void MatchProcessor::parse_and_store(int token_id, const std::string& json_respo
             "VALUES ($1, $2, $3, $4, to_timestamp($5)) "
             "ON CONFLICT (mid) DO UPDATE SET token_id = EXCLUDED.token_id "
             "RETURNING id",
-            token_id, mid, map_name, aim_assist, match_start
-        );
+            token_id, mid, map_name, aim_assist, match_start);
         int match_db_id = res[0][0].as<int>();
 
         if (match.contains("player_results") && match["player_results"].is_array()) {
             for (const auto& p : match["player_results"]) {
                 txn.exec_params(
                     "INSERT INTO match_players (match_id, nid_hash, player_name, team_name, team_num, team_placement, "
-                    "character_name, hardware, kills, assists, knockdowns, damage_dealt, headshots, shots, hits, survival_time, "
+                    "character_name, hardware, kills, assists, knockdowns, damage_dealt, headshots, shots, hits, "
+                    "survival_time, "
                     "respawns_given, revives_given) "
                     "VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18) "
                     "ON CONFLICT (match_id, nid_hash) DO NOTHING",
-                    match_db_id,
-                    p.value("nidHash", ""),
-                    p.value("playerName", ""),
-                    p.value("teamName", ""),
-                    p.value("teamNum", 0),
-                    p.value("teamPlacement", 0),
-                    p.value("characterName", ""),
-                    p.value("hardware", ""),
-                    p.value("kills", 0),
-                    p.value("assists", 0),
-                    p.value("knockdowns", 0),
-                    p.value("damageDealt", 0),
-                    p.value("headshots", 0),
-                    p.value("shots", 0),
-                    p.value("hits", 0),
-                    p.value("survivalTime", 0),
-                    p.value("respawnsGiven", 0),
-                    p.value("revivesGiven", 0)
-                );
+                    match_db_id, p.value("nidHash", ""), p.value("playerName", ""), p.value("teamName", ""),
+                    p.value("teamNum", 0), p.value("teamPlacement", 0), p.value("characterName", ""),
+                    p.value("hardware", ""), p.value("kills", 0), p.value("assists", 0), p.value("knockdowns", 0),
+                    p.value("damageDealt", 0), p.value("headshots", 0), p.value("shots", 0), p.value("hits", 0),
+                    p.value("survivalTime", 0), p.value("respawnsGiven", 0), p.value("revivesGiven", 0));
             }
         }
     }

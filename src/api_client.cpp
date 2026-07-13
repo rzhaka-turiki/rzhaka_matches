@@ -1,5 +1,7 @@
 #include "api_client.h"
+
 #include <curl/curl.h>
+
 #include <stdexcept>
 
 static size_t WriteCallback(void* contents, size_t size, size_t nmemb, void* userp) {
@@ -9,8 +11,7 @@ static size_t WriteCallback(void* contents, size_t size, size_t nmemb, void* use
 
 std::string ApiClient::get(const std::string& url) const {
     CURL* curl = curl_easy_init();
-    if (!curl)
-        throw std::runtime_error("Failed to init CURL");
+    if (!curl) throw std::runtime_error("Failed to init CURL");
 
     std::string response;
     curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
@@ -22,8 +23,7 @@ std::string ApiClient::get(const std::string& url) const {
     CURLcode res = curl_easy_perform(curl);
     curl_easy_cleanup(curl);
 
-    if (res != CURLE_OK)
-        throw std::runtime_error(std::string("CURL error: ") + curl_easy_strerror(res));
+    if (res != CURLE_OK) throw std::runtime_error(std::string("CURL error: ") + curl_easy_strerror(res));
 
     return response;
 }

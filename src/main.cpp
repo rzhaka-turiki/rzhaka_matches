@@ -1,18 +1,18 @@
-#include <csignal>
-#include <iostream>
-#include "config.h"
-#include "database.h"
-#include "api_client.h"
-#include "token_cache.h"
-#include "match_processor.h"
-#include "scheduler.h"
 #include <spdlog/spdlog.h>
 
-std::atomic<bool> global_running{ true };
+#include <csignal>
+#include <iostream>
 
-void signal_handler(int) {
-    global_running = false;
-}
+#include "api_client.h"
+#include "config.h"
+#include "database.h"
+#include "match_processor.h"
+#include "scheduler.h"
+#include "token_cache.h"
+
+std::atomic<bool> global_running{true};
+
+void signal_handler(int) { global_running = false; }
 
 int main(int argc, char* argv[]) {
     spdlog::info("Private Match Handler starting...");

@@ -1,21 +1,20 @@
 #pragma once
-#include "database.h"
-#include <vector>
 #include <chrono>
 #include <mutex>
+#include <vector>
+
+#include "database.h"
 
 class TokenCache {
 public:
-    TokenCache(Database& db, int ttl_seconds = 60)
-        : db_(db), ttl_(ttl_seconds) {}
+    TokenCache(Database& db, int ttl_seconds = 60) : db_(db), ttl_(ttl_seconds) {}
 
     std::vector<ActiveToken> get_tokens() {
         auto now = std::chrono::steady_clock::now();
         {
             std::lock_guard<std::mutex> lock(mtx_);
-            if (!cache_valid_ ||
-                std::chrono::duration_cast<std::chrono::seconds>(now - last_update_).count() >= ttl_) {
-                cache_ = db_.fetch_active_tokens(); 
+            if (!cache_valid_ || std::chrono::duration_cast<std::chrono::seconds>(now - last_update_).count() >= ttl_) {
+                cache_ = db_.fetch_active_tokens();
                 last_update_ = now;
                 cache_valid_ = true;
             }

@@ -1,10 +1,11 @@
 #pragma once
-#include <string>
 #include <nlohmann/json.hpp>
+#include <string>
 
 class Config {
 private:
     nlohmann::json data_;
+
 public:
     Config(const std::string& filepath);
 

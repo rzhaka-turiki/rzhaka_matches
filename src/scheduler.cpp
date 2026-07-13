@@ -1,5 +1,7 @@
 #include "scheduler.h"
+
 #include <spdlog/spdlog.h>
+
 #include <thread>
 
 Scheduler::Scheduler(Database& db, TokenCache& token_cache, MatchProcessor& processor, int interval_seconds)
@@ -13,13 +15,11 @@ void Scheduler::run() {
             for (const auto& token : tokens) {
                 try {
                     processor_.process_token(token);
-                }
-                catch (const std::exception& e) {
+                } catch (const std::exception& e) {
                     spdlog::error("Token {} failed: {}", token.id, e.what());
                 }
             }
-        }
-        catch (const std::exception& e) {
+        } catch (const std::exception& e) {
             spdlog::error("Main loop error: {}", e.what());
         }
 
@@ -31,6 +31,4 @@ void Scheduler::run() {
     spdlog::info("Scheduler stopped");
 }
 
-void Scheduler::stop() {
-    running_ = false;
-}
+void Scheduler::stop() { running_ = false; }

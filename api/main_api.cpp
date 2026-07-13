@@ -1,13 +1,15 @@
 #include <grpcpp/grpcpp.h>
 #include <spdlog/spdlog.h>
-#include "grpc_service.h"
-#include "config.h"
-#include "database.h"
-#include <csignal>
+
 #include <atomic>
+#include <csignal>
 #include <thread>
 
-std::atomic<bool> running{ true };
+#include "config.h"
+#include "database.h"
+#include "grpc_service.h"
+
+std::atomic<bool> running{true};
 
 int main(int argc, char* argv[]) {
     spdlog::info("Match API starting...");
