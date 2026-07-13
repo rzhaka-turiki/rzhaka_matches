@@ -13,17 +13,23 @@ env:
 jobs:
   clang-format:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@v4
+
       - name: Install clang-format
         run: sudo apt-get update && sudo apt-get install -y clang-format
 
-      - name: Run clang-format with reviewdog
-        uses: reviewdog/action-clang-format@v1
+      - name: Apply clang-format
+        run: |
+          find src/ api/ -name '*.cpp' -o -name '*.h' | xargs clang-format -i
+
+      - name: Commit changes
+        uses: stefanzweifel/git-auto-commit-action@v5
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          reporter: github-pr-review
-          clang_format_version: 14
+          commit_message: "style: apply clang-format"
+          branch: ${{ github.head_ref }}
 
   cppcheck:
     runs-on: ubuntu-latest
