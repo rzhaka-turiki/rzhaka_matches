@@ -109,9 +109,9 @@ jobs:
             docker pull ghcr.io/${{ github.repository }}/api:latest
             docker rm -f match-api 2>/dev/null || true
             docker run -d --name match-api \
-            --restart unless-stopped \
-            --network match-net \
-            -v /opt/fetcher/config.json:/etc/fetcher/config.json \
-            -p 127.0.0.1:50051:50051 \
-            --add-host=host.docker.internal:host-gateway \
-            ghcr.io/${{ github.repository }}/api:latest
+              --restart unless-stopped \
+              --network match-net \
+              -v /opt/fetcher/config.json:/etc/fetcher/config.json \
+              -p 127.0.0.1:50051:50051 \
+              --add-host=host.docker.internal:host-gateway \
+              ghcr.io/${{ github.repository }}/api:latest
