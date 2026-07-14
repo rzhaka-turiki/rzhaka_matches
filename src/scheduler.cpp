@@ -10,20 +10,16 @@ void Scheduler::run() {
     while (running_) {
         try {
             auto tokens = token_cache_.get_tokens();
+            for (size_t i = 0; i < tokens.size() && running_; ++i) {
+                try {
+                    processor_.process_token(tokens[i]);
+                } catch (const std::exception& e) {
+                    spdlog::error("Token {} failed: {}", tokens[i].id, e.what());
+                }
 
-            std::vector<std::future<void>> futures;
-            for (const auto& token : tokens) {
-                futures.push_back(std::async(std::launch::async, [this, token]() {
-                    try {
-                        processor_.process_token(token);
-                    } catch (const std::exception& e) {
-                        spdlog::error("Token {} failed: {}", token.id, e.what());
-                    }
-                }));
-            }
-
-            for (auto& f : futures) {
-                f.wait();
+                if (i < tokens.size() - 1) {
+                    std::this_thread::sleep_for(std::chrono::seconds(2));
+                }
             }
         } catch (const std::exception& e) {
             spdlog::error("Main loop error: {}", e.what());
