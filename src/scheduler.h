@@ -1,6 +1,9 @@
 #pragma once
 #include <atomic>
 #include <chrono>
+#include <future>
+#include <thread>
+#include <vector>
 
 #include "database.h"
 #include "match_processor.h"
