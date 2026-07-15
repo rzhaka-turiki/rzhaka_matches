@@ -62,7 +62,7 @@ void MatchProcessor::parse_and_store(int token_id, const std::string& json_respo
                         p.value("damageDealt", 0), p.value("headshots", 0), p.value("shots", 0), p.value("hits", 0),
                         p.value("survivalTime", 0), p.value("respawnsGiven", 0), p.value("revivesGiven", 0));
                 }
-        }
+            }
             mids_cache_.insert(mid);
         }
     }
