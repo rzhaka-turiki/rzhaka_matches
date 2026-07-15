@@ -17,23 +17,24 @@ void signal_handler(int) { global_running = false; }
 int main(int argc, char* argv[]) {
     spdlog::info("Private Match Handler starting...");
 
-    // Чтение конфига
+    // cfg read
     std::string config_path = "config.json";
     if (argc > 1) config_path = argv[1];
     Config config(config_path);
 
-    // Инициализация компонентов
+    // init
     Database db(config.db_connection_string());
     TokenCache token_cache(db, config.fetch_cache_seconds());
     ApiClient api;
     MatchProcessor processor(db.connection(), api, config.api_base_url());
+    processor.init_mids(db.get_mids());
     Scheduler scheduler(db, token_cache, processor, config.fetch_interval_seconds());
 
-    // Перехват сигналов
+    // signal handler
     std::signal(SIGINT, signal_handler);
     std::signal(SIGTERM, signal_handler);
 
-    // Запуск планировщика (блокирующий)
+    // scheduler run
     scheduler.run();
 
     spdlog::info("Shutting down.");
