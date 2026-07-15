@@ -5,15 +5,24 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 find_package(Protobuf REQUIRED)
-find_package(PkgConfig REQUIRED)
 
-# gRPC через pkg-config
-pkg_check_modules(GRPC REQUIRED grpc++ grpc)
-find_program(GRPC_CPP_PLUGIN grpc_cpp_plugin REQUIRED)
-find_program(PROTOC protoc REQUIRED)
+if(WIN32)
+    find_package(gRPC CONFIG REQUIRED)
+    find_program(GRPC_CPP_PLUGIN grpc_cpp_plugin REQUIRED)
+    find_program(PROTOC protoc REQUIRED)
+else()
+    find_package(PkgConfig REQUIRED)
+    pkg_check_modules(GRPC REQUIRED grpc++ grpc)
+    find_program(GRPC_CPP_PLUGIN grpc_cpp_plugin REQUIRED)
+    find_program(PROTOC protoc REQUIRED)
+endif()
 
-# libpqxx через pkg-config (избегаем проблем с CMake-конфигом)
-pkg_check_modules(PQXX REQUIRED libpqxx)
+if(WIN32)
+    find_package(libpqxx CONFIG REQUIRED)
+else()
+    find_package(PkgConfig REQUIRED)
+    pkg_check_modules(PQXX REQUIRED libpqxx)
+endif()
 
 find_package(spdlog REQUIRED)
 find_package(nlohmann_json REQUIRED)
@@ -23,7 +32,6 @@ if(NOT DEFINED PROTO_DIR)
     set(PROTO_DIR ${CMAKE_SOURCE_DIR}/../proto)
 endif()
 
-# Явно задаём proto-файл (он один)
 set(PROTO_FILE ${PROTO_DIR}/match_service.proto)
 set(PROTO_SRC ${CMAKE_CURRENT_BINARY_DIR}/match_service.pb.cc)
 set(GRPC_SRC ${CMAKE_CURRENT_BINARY_DIR}/match_service.grpc.pb.cc)
@@ -49,18 +57,32 @@ add_executable(match_api
     ${GRPC_SRC}
 )
 
-target_include_directories(match_api PRIVATE
-    ${CMAKE_CURRENT_BINARY_DIR}
-    ${CMAKE_CURRENT_SOURCE_DIR}
-    ${PROTOBUF_INCLUDE_DIRS}
-    ${GRPC_INCLUDE_DIRS}
-    ${PQXX_INCLUDE_DIRS}
-)
-
-target_link_libraries(match_api PRIVATE
-    ${PROTOBUF_LIBRARIES}
-    ${GRPC_LINK_LIBRARIES}
-    ${PQXX_LIBRARIES}
-    spdlog::spdlog
-    nlohmann_json::nlohmann_json
-)
+if(WIN32)
+    target_include_directories(match_api PRIVATE
+        ${CMAKE_CURRENT_BINARY_DIR}
+        ${CMAKE_CURRENT_SOURCE_DIR}
+        ${PROTOBUF_INCLUDE_DIRS}
+    )
+    target_link_libraries(match_api PRIVATE
+        ${PROTOBUF_LIBRARIES}
+        gRPC::grpc++
+        libpqxx::pqxx
+        spdlog::spdlog
+        nlohmann_json::nlohmann_json
+    )
+else()
+    target_include_directories(match_api PRIVATE
+        ${CMAKE_CURRENT_BINARY_DIR}
+        ${CMAKE_CURRENT_SOURCE_DIR}
+        ${PROTOBUF_INCLUDE_DIRS}
+        ${GRPC_INCLUDE_DIRS}
+        ${PQXX_INCLUDE_DIRS}
+    )
+    target_link_libraries(match_api PRIVATE
+        ${PROTOBUF_LIBRARIES}
+        ${GRPC_LINK_LIBRARIES}
+        ${PQXX_LIBRARIES}
+        spdlog::spdlog
+        nlohmann_json::nlohmann_json
+    )
+endif()
