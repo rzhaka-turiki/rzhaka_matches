@@ -44,7 +44,6 @@ public:
     std::string getTeamName() const { return team_name_; }
     std::string getHardware() const { return hardware_; }
     std::string getCharacterName() const { return character_name_; }
-
     // set
     void init(nlohmann::json s_json_);
     void setDBid(int s_db_id_) { db_id_ = s_db_id_; }
@@ -71,6 +70,8 @@ public:
     int64_t getMatchStart() const { return match_start_; }
     std::vector<Player> getPlayers() const { return players_; }
     int getDBid() const { return db_id_; }
+    nlohmann::json getJson() const { return json_; }
+
 
     // set
     void init(nlohmann::json s_json_, const int s_token_id_);

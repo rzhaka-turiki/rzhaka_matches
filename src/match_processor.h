@@ -6,6 +6,8 @@
 #include <unordered_set>
 
 #include "api_client.h"
+#include "game_modules.h"
+#include "database.h"
 
 struct ActiveToken;
 

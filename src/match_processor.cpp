@@ -2,8 +2,6 @@
 #include <nlohmann/json.hpp>
 
 #include "match_processor.h"
-#include "database.h"
-#include "game_modules.h"
 
 MatchProcessor::MatchProcessor(Database& db, const ApiClient& api, const std::string& base_url)
     : db_(db), api_(api), base_url_(base_url) {}
@@ -34,7 +32,6 @@ void MatchProcessor::parse_and_store(int token_id, const std::string& json_respo
             continue;
         } else {
             db_ << match_;
-            auto match_players_ = match_.getPlayers();
             mids_cache_.insert(match_.getMid());
         }
     }
