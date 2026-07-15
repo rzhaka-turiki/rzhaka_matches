@@ -2,6 +2,8 @@
 #include <pqxx/pqxx>
 #include <string>
 #include <unordered_set>
+#include <mutex>
+#include <iostream>
 
 #include "api_client.h"
 
@@ -15,7 +17,7 @@ private:
 
     void parse_and_store(int token_id, const std::string& json_response);
     // mids hash
-    std::unordered_set<std::string> stored_mids_;
+    std::unordered_set<std::string> mids_cache_;
     std::mutex mids_mutex_;
 
 public:
