@@ -4,6 +4,8 @@ project(match_api LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+add_subdirectory(../common common_build)
+
 find_package(Protobuf REQUIRED)
 
 if(WIN32)
@@ -17,17 +19,9 @@ else()
     find_program(PROTOC protoc REQUIRED)
 endif()
 
-if(WIN32)
-    find_package(libpqxx CONFIG REQUIRED)
-else()
-    find_package(PkgConfig REQUIRED)
-    pkg_check_modules(PQXX REQUIRED libpqxx)
-endif()
-
 find_package(spdlog REQUIRED)
 find_package(nlohmann_json REQUIRED)
 
-# Путь к proto-файлам
 if(NOT DEFINED PROTO_DIR)
     set(PROTO_DIR ${CMAKE_SOURCE_DIR}/../proto)
 endif()
@@ -51,8 +45,6 @@ add_custom_command(
 add_executable(match_api
     main_api.cpp
     grpc_service.cpp
-    database.cpp
-    config.cpp
     ${PROTO_SRC}
     ${GRPC_SRC}
 )
@@ -66,9 +58,8 @@ if(WIN32)
     target_link_libraries(match_api PRIVATE
         ${PROTOBUF_LIBRARIES}
         gRPC::grpc++
-        libpqxx::pqxx
         spdlog::spdlog
-        nlohmann_json::nlohmann_json
+        common
     )
 else()
     target_include_directories(match_api PRIVATE
@@ -76,13 +67,11 @@ else()
         ${CMAKE_CURRENT_SOURCE_DIR}
         ${PROTOBUF_INCLUDE_DIRS}
         ${GRPC_INCLUDE_DIRS}
-        ${PQXX_INCLUDE_DIRS}
     )
     target_link_libraries(match_api PRIVATE
         ${PROTOBUF_LIBRARIES}
         ${GRPC_LINK_LIBRARIES}
-        ${PQXX_LIBRARIES}
         spdlog::spdlog
-        nlohmann_json::nlohmann_json
+        common
     )
 endif()
