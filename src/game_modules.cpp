@@ -1,14 +1,14 @@
 #include "game_modules.h"
 
-void Player::init(nlohmann::json s_json_) { 
-	nid_hash_ = s_json_.value("nidHash", ""); 
-	player_name_ = s_json_.value("playerName", "");
+void Player::init(nlohmann::json s_json_) {
+    nid_hash_ = s_json_.value("nidHash", "");
+    player_name_ = s_json_.value("playerName", "");
     team_name_ = s_json_.value("teamName", "");
     team_num_ = s_json_.value("teamNum", 0);
     team_placement_ = s_json_.value("teamPlacement", 0);
     character_name_ = s_json_.value("characterName", "");
     hardware_ = s_json_.value("hradware", "");
-	kills_ = s_json_.value("kills", 0);
+    kills_ = s_json_.value("kills", 0);
     assists_ = s_json_.value("assists", 0);
     knockdowns_ = s_json_.value("knockdowns", 0);
     damage_dealt_ = s_json_.value("damageDealt", 0);
@@ -20,7 +20,7 @@ void Player::init(nlohmann::json s_json_) {
     revives_given_ = s_json_.value("revivesGiven", 0);
 }
 
-void Match::init(nlohmann::json s_json_, const int s_token_id_) { 
+void Match::init(nlohmann::json s_json_, const int s_token_id_) {
     json_ = s_json_;
     mid_ = json_.value("mid", "");
     token_id_ = token_id_;

@@ -1,7 +1,8 @@
-#include <spdlog/spdlog.h>
-#include <nlohmann/json.hpp>
-
 #include "match_processor.h"
+
+#include <spdlog/spdlog.h>
+
+#include <nlohmann/json.hpp>
 
 MatchProcessor::MatchProcessor(Database& db, const ApiClient& api, const std::string& base_url)
     : db_(db), api_(api), base_url_(base_url) {}

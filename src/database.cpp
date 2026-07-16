@@ -19,8 +19,8 @@ std::vector<ActiveToken> Database::fetch_active_tokens() {
     return result;
 }
 
-std::unordered_set<std::string> Database::get_mids() { 
-    std::unordered_set<std::string> mids; 
+std::unordered_set<std::string> Database::get_mids() {
+    std::unordered_set<std::string> mids;
     pqxx::work txn(conn_);
     auto rows = txn.exec("SELECT mid FROM matches;");
     for (const auto& row : rows) {
@@ -40,17 +40,20 @@ Database& operator<<(Database& db, const Player& s_player) {
         "respawns_given, revives_given) "
         "VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18) "
         "ON CONFLICT (match_id, nid_hash) DO NOTHING",
-        s_player.getDBid(), s_player.getNidHash(), s_player.getPlayerName(), s_player.getTeamName(), s_player.getTeamNum(), s_player.getTeamPlacement(),
-        s_player.getCharacterName(), s_player.getHardware(), s_player.getKills(), s_player.getAssists(), s_player.getKnockdowns(), s_player.getDamage(),
-        s_player.getHeadshots(), s_player.getShots(), s_player.getHits(), s_player.getSurvivalTime(), s_player.getRespawnsGiven(), s_player.getRevivesGiven());
+        s_player.getDBid(), s_player.getNidHash(), s_player.getPlayerName(), s_player.getTeamName(),
+        s_player.getTeamNum(), s_player.getTeamPlacement(), s_player.getCharacterName(), s_player.getHardware(),
+        s_player.getKills(), s_player.getAssists(), s_player.getKnockdowns(), s_player.getDamage(),
+        s_player.getHeadshots(), s_player.getShots(), s_player.getHits(), s_player.getSurvivalTime(),
+        s_player.getRespawnsGiven(), s_player.getRevivesGiven());
     txn.commit();
 }
 
-Database& operator<<(Database& db, Match& s_match) { 
+Database& operator<<(Database& db, Match& s_match) {
     pqxx::work txn(db.connection());
-    pqxx::result res = txn.exec_params("INSERT INTO matches (token_id, mid, map_name, aim_assist, match_start) "
-                "VALUES ($1, $2, $3, $4, to_timestamp($5)) "
-                "ON CONFLICT (mid) DO UPDATE SET token_id = EXCLUDED.token_id "
+    pqxx::result res = txn.exec_params(
+        "INSERT INTO matches (token_id, mid, map_name, aim_assist, match_start) "
+        "VALUES ($1, $2, $3, $4, to_timestamp($5)) "
+        "ON CONFLICT (mid) DO UPDATE SET token_id = EXCLUDED.token_id "
         "RETURNING id",
         s_match.getToken(), s_match.getMid(), s_match.getMap(), s_match.getAimAssist(), s_match.getMatchStart());
     s_match.setDBid(res[0][0].as<int>());

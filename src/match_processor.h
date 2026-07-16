@@ -6,8 +6,8 @@
 #include <unordered_set>
 
 #include "api_client.h"
-#include "game_modules.h"
 #include "database.h"
+#include "game_modules.h"
 
 struct ActiveToken;
 
@@ -27,5 +27,5 @@ public:
 
     Database getDB() { return db_; }
     void process_token(const ActiveToken& token);
-    void init_mids(std::unordered_set<std::string> s_mids_) { mids_cache_ = s_mids_;}
+    void init_mids(std::unordered_set<std::string> s_mids_) { mids_cache_ = s_mids_; }
 };

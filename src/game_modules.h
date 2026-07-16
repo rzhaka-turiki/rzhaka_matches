@@ -1,6 +1,6 @@
+#include <nlohmann/json.hpp>
 #include <string>
 #include <vector>
-#include <nlohmann/json.hpp>
 
 class Player {
 private:
@@ -62,7 +62,7 @@ private:
     nlohmann::json json_;
 
 public:
-    //get
+    // get
     std::string getMid() const { return mid_; }
     int getToken() const { return token_id_; }
     std::string getMap() const { return map_name_; }
@@ -71,7 +71,6 @@ public:
     std::vector<Player> getPlayers() const { return players_; }
     int getDBid() const { return db_id_; }
     nlohmann::json getJson() const { return json_; }
-
 
     // set
     void init(nlohmann::json s_json_, const int s_token_id_);

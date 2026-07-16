@@ -2,6 +2,7 @@
 #include <pqxx/pqxx>
 #include <string>
 #include <unordered_set>
+
 #include "game_modules.h"
 
 struct ActiveToken {
