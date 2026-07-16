@@ -26,7 +26,7 @@ int main(int argc, char* argv[]) {
     Database db(config.db_connection_string());
     TokenCache token_cache(db, config.fetch_cache_seconds());
     ApiClient api;
-    MatchProcessor processor(db.connection(), api, config.api_base_url());
+    MatchProcessor processor(db, api, config.api_base_url());
     processor.init_mids(db.get_mids());
     Scheduler scheduler(db, token_cache, processor, config.fetch_interval_seconds());
 

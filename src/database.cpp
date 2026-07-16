@@ -46,6 +46,7 @@ Database& operator<<(Database& db, const Player& s_player) {
         s_player.getHeadshots(), s_player.getShots(), s_player.getHits(), s_player.getSurvivalTime(),
         s_player.getRespawnsGiven(), s_player.getRevivesGiven());
     txn.commit();
+    return db;
 }
 
 Database& operator<<(Database& db, Match& s_match) {
@@ -62,4 +63,5 @@ Database& operator<<(Database& db, Match& s_match) {
         db << p;
     }
     txn.commit();
+    return db;
 }
