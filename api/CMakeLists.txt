@@ -48,7 +48,7 @@ add_executable(match_api
     ${PROTO_SRC}
     ${GRPC_SRC}
 )
-
+target_include_directories(common PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 if(WIN32)
     target_include_directories(match_api PRIVATE
         ${CMAKE_CURRENT_BINARY_DIR}
