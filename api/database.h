@@ -1,5 +1,5 @@
 #pragma once
-#include "common/database_base.h"
+#include "database_base.h"
 
 class Database : public DatabaseBase {
 public:
