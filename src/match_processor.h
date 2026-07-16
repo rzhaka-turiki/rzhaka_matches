@@ -13,7 +13,7 @@ struct ActiveToken;
 
 class MatchProcessor {
 private:
-    Database& db_;
+    Database db_;
     const ApiClient& api_;
     std::string base_url_;
 
@@ -25,7 +25,7 @@ private:
 public:
     MatchProcessor(Database& db, const ApiClient& api, const std::string& base_url);
 
-    Database getDB() { return db_; }
+    Database& getDB() { return db_; }
     void process_token(const ActiveToken& token);
     void init_mids(std::unordered_set<std::string> s_mids_) { mids_cache_ = s_mids_; }
 };
