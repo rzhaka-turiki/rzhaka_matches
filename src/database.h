@@ -3,24 +3,12 @@
 #include <string>
 #include <unordered_set>
 
+#include "common/database_base.h"
 #include "game_modules.h"
 
-struct ActiveToken {
-    int id;
-    std::string token;
-};
-
-class Database {
-private:
-    pqxx::connection conn_;
-
+class Database : public DatabaseBase {
 public:
-    explicit Database(const std::string& connection_string);
-    Database(Database& db);
-    ~Database() = default;
-
-    pqxx::connection& connection();
-    std::vector<ActiveToken> fetch_active_tokens();
+    using DatabaseBase::DatabaseBase;
     std::unordered_set<std::string> get_mids();
 };
 

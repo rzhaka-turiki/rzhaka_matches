@@ -25,7 +25,6 @@ private:
 public:
     MatchProcessor(Database& db, const ApiClient& api, const std::string& base_url);
 
-    Database getDB() { return db_; }
     void process_token(const ActiveToken& token);
     void init_mids(std::unordered_set<std::string> s_mids_) { mids_cache_ = s_mids_; }
 };

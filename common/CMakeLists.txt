@@ -1,23 +1,28 @@
 cmake_minimum_required(VERSION 3.16)
-project(privmatch-fetcher VERSION 1.0 LANGUAGES CXX)
+project(common LANGUAGES CXX)
 
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-find_package(CURL REQUIRED)
 find_package(nlohmann_json REQUIRED)
-find_package(spdlog REQUIRED)
-find_package(PkgConfig REQUIRED)
-pkg_check_modules(PQXX REQUIRED libpqxx)
 
-file(GLOB FETCHER_SOURCES "src/*.cpp")
+if(WIN32)
+    find_package(libpqxx CONFIG REQUIRED)
+else()
+    find_package(PkgConfig REQUIRED)
+    pkg_check_modules(PQXX REQUIRED libpqxx)
+endif()
 
-add_executable(fetcher ${FETCHER_SOURCES})
-
-target_include_directories(fetcher PRIVATE src ${PQXX_INCLUDE_DIRS})
-target_link_libraries(fetcher PRIVATE
-    CURL::libcurl
-    nlohmann_json::nlohmann_json
-    ${PQXX_LIBRARIES}
-    spdlog::spdlog
+add_library(common STATIC
+    config.cpp
+    database_base.cpp
 )
+
+target_include_directories(common PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+
+if(WIN32)
+    target_link_libraries(common PUBLIC libpqxx::pqxx nlohmann_json::nlohmann_json)
+else()
+    target_link_libraries(common PUBLIC ${PQXX_LIBRARIES} nlohmann_json::nlohmann_json)
+    target_include_directories(common PUBLIC ${PQXX_INCLUDE_DIRS})
+endif()

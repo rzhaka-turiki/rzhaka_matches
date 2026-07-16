@@ -1,21 +1,7 @@
 #pragma once
-#include <pqxx/pqxx>
-#include <string>
-#include <vector>
+#include "database_base.h"
 
-struct ActiveToken {
-    int id;
-    std::string token;
-};
-
-class Database {
-private:
-    pqxx::connection conn_;
-
+class Database : public DatabaseBase {
 public:
-    explicit Database(const std::string& connection_string);
-    ~Database() = default;
-
-    pqxx::connection& connection();
-    std::vector<ActiveToken> fetch_active_tokens();
+    using DatabaseBase::DatabaseBase;
 };
