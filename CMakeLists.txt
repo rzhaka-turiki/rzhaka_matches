@@ -16,7 +16,7 @@ endif()
 
 file(GLOB FETCHER_SOURCES "src/*.cpp")
 
-add_executable(fetcher ${FETCHER_SOURCES})
+add_executable(fetcher ${FETCHER_SOURCES} "src/game_modules.h" "src/game_modules.cpp")
 
 if(WIN32)
     target_include_directories(fetcher PRIVATE src)
