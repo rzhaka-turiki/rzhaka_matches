@@ -1,7 +1,6 @@
 #include "match_processor.h"
 
 #include <spdlog/spdlog.h>
-
 #include <nlohmann/json.hpp>
 
 MatchProcessor::MatchProcessor(Database& db, const ApiClient& api, const std::string& base_url)
@@ -29,7 +28,7 @@ void MatchProcessor::parse_and_store(int token_id, const std::string& json_respo
     for (const auto& match : json["matches"]) {
         Match match_;
         match_.init(match, token_id);
-        if (mids_cache_.contains(match_.getMid())) {
+        if (mids_cache_.find(match_.getMid()) != mids_cache_.end()) {
             continue;
         } else {
             db_ << match_;
