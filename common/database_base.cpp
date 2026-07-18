@@ -17,6 +17,7 @@ std::vector<ActiveToken> DatabaseBase::fetch_active_tokens() {
             "WHERE NOW() BETWEEN activation AND expiration");
         for (const auto& row : rows) {
             result.push_back({row[0].as<int>(), row[1].as<std::string>()});
+            spdlog::info(row[0].as<int>);
         }
         txn.commit();
     } catch (const std::exception& e) {
