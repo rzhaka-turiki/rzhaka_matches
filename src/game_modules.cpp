@@ -29,11 +29,9 @@ void Player::insert_into(pqxx::work& txn) const {
         "respawns_given, revives_given) "
         "VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18) "
         "ON CONFLICT (match_id, nid_hash) DO NOTHING",
-        db_id_, nid_hash_, player_name_, team_name_,
-        team_num_, team_placement_, character_name_, hardware_,
-        kills_, assists_, knockdowns_, damage_dealt_,
-        headshots_, shots_, hits_, survival_time_,
-        respawns_given_, revives_given_);
+        db_id_, nid_hash_, player_name_, team_name_, team_num_, team_placement_, character_name_, hardware_, kills_,
+        assists_, knockdowns_, damage_dealt_, headshots_, shots_, hits_, survival_time_, respawns_given_,
+        revives_given_);
     txn.commit();
 }
 
