@@ -13,25 +13,6 @@ std::unordered_set<std::string> Database::get_mids() {
     return mids;
 }
 
-Database& operator<<(Database& db, const Player& s_player) {
-    pqxx::work txn(db.connection());
-    txn.exec_params(
-        "INSERT INTO match_players (match_id, nid_hash, player_name, team_name, team_num, "
-        "team_placement, "
-        "character_name, hardware, kills, assists, knockdowns, damage_dealt, headshots, shots, hits, "
-        "survival_time, "
-        "respawns_given, revives_given) "
-        "VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18) "
-        "ON CONFLICT (match_id, nid_hash) DO NOTHING",
-        s_player.getDBid(), s_player.getNidHash(), s_player.getPlayerName(), s_player.getTeamName(),
-        s_player.getTeamNum(), s_player.getTeamPlacement(), s_player.getCharacterName(), s_player.getHardware(),
-        s_player.getKills(), s_player.getAssists(), s_player.getKnockdowns(), s_player.getDamage(),
-        s_player.getHeadshots(), s_player.getShots(), s_player.getHits(), s_player.getSurvivalTime(),
-        s_player.getRespawnsGiven(), s_player.getRevivesGiven());
-    txn.commit();
-    return db;
-}
-
 Database& operator<<(Database& db, Match& s_match) {
     pqxx::work txn(db.connection());
     pqxx::result res = txn.exec_params(
@@ -43,7 +24,7 @@ Database& operator<<(Database& db, Match& s_match) {
     s_match.setDBid(res[0][0].as<int>());
     for (auto& p : s_match.getPlayers()) {
         p.setDBid(s_match.getDBid());
-        db << p;
+        p.insert_into(txn);
     }
     txn.commit();
     return db;

@@ -1,5 +1,6 @@
 #pragma once
 #include <nlohmann/json.hpp>
+#include <pqxx/pqxx>
 #include <string>
 #include <vector>
 
@@ -48,6 +49,7 @@ public:
     // set
     void init(nlohmann::json s_json_);
     void setDBid(int s_db_id_) { db_id_ = s_db_id_; }
+    void insert_into(pqxx::work& txn) const;
 };
 
 class Match {
