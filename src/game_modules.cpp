@@ -23,7 +23,7 @@ void Player::init(nlohmann::json s_json_) {
 void Match::init(nlohmann::json s_json_, const int s_token_id_) {
     json_ = s_json_;
     mid_ = json_.value("mid", "");
-    token_id_ = token_id_;
+    token_id_ = s_token_id_;
     map_name_ = json_.value("map_name", "unknown");
     aim_assist_ = json_.value("aim_assist_allowed", false);
     match_start_ = json_.value("match_start", 0);
