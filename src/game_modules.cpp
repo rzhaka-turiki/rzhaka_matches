@@ -7,7 +7,7 @@ void Player::init(nlohmann::json s_json_) {
     team_num_ = s_json_.value("teamNum", 0);
     team_placement_ = s_json_.value("teamPlacement", 0);
     character_name_ = s_json_.value("characterName", "");
-    hardware_ = s_json_.value("hradware", "");
+    hardware_ = s_json_.value("hardware", "");
     kills_ = s_json_.value("kills", 0);
     assists_ = s_json_.value("assists", 0);
     knockdowns_ = s_json_.value("knockdowns", 0);
