@@ -66,7 +66,7 @@ message ListTokensResponse {
 * карта
 * игрок
 * размер страницы
-* конкретный токен
+* конкретный токен <br>
 Request:
 ```proto
 message ListMatchesRequest {
@@ -117,7 +117,7 @@ message PlayerResult {
 * Карта
 * Минимальные киллы
 * Максимальные киллы
-* Игрок
+* Игрок <br>
 Response:
 ```proto
 message MatchStatsResponse {
@@ -132,7 +132,7 @@ message MatchStatsResponse {
 ### GetPlayerStats
 Возвращает статистику по конкретному игроку. Поддерживаемые фильтры:
 * Игрок
-* Период
+* Период <br>
 Response:
 ```proto
 message PlayerStatsResponse {
