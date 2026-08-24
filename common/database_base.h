@@ -1,6 +1,5 @@
 #pragma once
 #include <pqxx/pqxx>
-#include <params.hxx>
 #include <string>
 #include <vector>
 
