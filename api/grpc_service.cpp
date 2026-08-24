@@ -113,7 +113,8 @@ grpc::Status MatchServiceImpl::ListMatches(grpc::ServerContext* ctx, const match
             sql += R" AND id
                         IN (SELECT match_id 
                             FROM match_players 
-                            WHERE nid_hash = $" + std::to_string(param_index++) + ")";
+                            WHERE nid_hash = $" +
+                   std::to_string(param_index++) + ")";
             params.append(req->player_hash());
 >>>>>>> a2ca35c (string fix)
         }
