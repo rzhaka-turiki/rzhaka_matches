@@ -71,39 +71,82 @@ grpc::Status MatchServiceImpl::ListTokens(grpc::ServerContext* ctx, const matcha
 
 grpc::Status MatchServiceImpl::ListMatches(grpc::ServerContext* ctx, const matchapi::ListMatchesRequest* req,
                                            matchapi::ListMatchesResponse* resp) {
-    if (!check_auth(ctx)) return grpc::Status(grpc::StatusCode::UNAUTHENTICATED, "Invalid API key");
+    if (!check_auth(ctx)) {
+        return grpc::Status(grpc::StatusCode::UNAUTHENTICATED, "Invalid API key");
+    }
+
     try {
-        std::string sql =
-            "SELECT id, mid, map_name, match_start, "
-            "(SELECT COUNT(*) FROM match_players WHERE match_id = matches.id) "
-            "FROM matches WHERE 1=1";
+        const int page_size = req->page_size() > 0 ? req->page_size() : 50;
 
-        if (!req->start_date().empty()) sql += " AND match_start >= '" + req->start_date() + "'::timestamptz";
-        if (!req->end_date().empty()) sql += " AND match_start <= '" + req->end_date() + "'::timestamptz";
-        if (!req->map_name().empty()) sql += " AND map_name = '" + req->map_name() + "'";
-        if (!req->player_hash().empty())
-            sql += " AND id IN (SELECT match_id FROM match_players WHERE nid_hash = '" + req->player_hash() + "')";
-
-        int page_size = req->page_size() > 0 ? req->page_size() : 50;
         int offset = 0;
-        if (!req->page_token().empty()) offset = std::stoi(req->page_token());
-        sql += " ORDER BY id DESC LIMIT " + std::to_string(page_size) + " OFFSET " + std::to_string(offset);
+
+        if (!req->page_token().empty()) {
+            try {
+                offset = std::stoi(req->page_token());
+            } catch (const std::exception&) {
+                return grpc::Status(grpc::StatusCode::INVALID_ARGUMENT, "Invalid page token");
+            }
+        }
+
+        const std::string sql = R"(
+            SELECT
+                id,
+                mid,
+                map_name,
+                match_start,
+                token_id,
+                (
+                    SELECT COUNT(*)
+                    FROM match_players
+                    WHERE match_id = matches.id
+                )
+            FROM matches
+            WHERE ($1 = '' OR match_start >= $1::timestamptz)
+              AND ($2 = '' OR match_start <= $2::timestamptz)
+              AND ($3 = '' OR map_name = $3)
+              AND (
+                    $4 = ''
+                    OR id IN (
+                        SELECT match_id
+                        FROM match_players
+                        WHERE nid_hash = $4
+                    )
+              )
+              AND ($5 = 0 OR token_id = $5)
+            ORDER BY id DESC
+            LIMIT $6
+            OFFSET $7
+        )";
 
         pqxx::work txn(db_.connection());
-        auto res = txn.exec(sql);
+
+        auto res = txn.exec_params(sql, req->start_date(), req->end_date(), req->map_name(), req->player_hash(),
+                                   req->token_id(), page_size, offset);
+
         for (const auto& row : res) {
-            auto* m = resp->add_matches();
-            m->set_id(row[0].as<int>());
-            m->set_mid(row[1].as<std::string>());
-            m->set_map_name(row[2].as<std::string>());
-            m->set_match_start(row[3].as<std::string>());
-            m->set_player_count(row[4].as<int>());
+            auto* match = resp->add_matches();
+
+            match->set_id(row[0].as<int>());
+            match->set_mid(row[1].as<std::string>());
+            match->set_map_name(row[2].as<std::string>());
+            match->set_match_start(row[3].as<std::string>());
+            match->set_token_id(row[4].as<int>());
+            match->set_player_count(row[5].as<int>());
         }
-        if (res.size() == page_size) resp->set_next_page_token(std::to_string(offset + page_size));
+
+        if (static_cast<int>(res.size()) == page_size) {
+            resp->set_next_page_token(std::to_string(offset + page_size));
+        }
+
         resp->set_total_count(0);
+
         txn.commit();
+
         return grpc::Status::OK;
+
     } catch (const std::exception& e) {
+        spdlog::error("ListMatches: {}", e.what());
+
         return grpc::Status(grpc::StatusCode::INTERNAL, e.what());
     }
 }
