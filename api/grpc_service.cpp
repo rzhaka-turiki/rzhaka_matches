@@ -86,7 +86,7 @@ grpc::Status MatchServiceImpl::ListMatches(grpc::ServerContext* ctx, const match
             FROM matches 
             WHERE 1=1)";
 
-        pqxx::params params;
+        pqxx::internal::params params;
         int param_index = 1;
         if (!req->start_date().empty()) {
             sql += " AND match_start >= $" + std::to_string(param_index++) + "::timestamptz";
