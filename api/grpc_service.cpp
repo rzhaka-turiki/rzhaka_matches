@@ -69,22 +69,14 @@ grpc::Status MatchServiceImpl::ListTokens(grpc::ServerContext* ctx, const matcha
     }
 }
 
-grpc::Status MatchServiceImpl::ListMatches(
-    grpc::ServerContext* ctx,
-    const matchapi::ListMatchesRequest* req,
-    matchapi::ListMatchesResponse* resp) {
-
+grpc::Status MatchServiceImpl::ListMatches(grpc::ServerContext* ctx, const matchapi::ListMatchesRequest* req,
+                                           matchapi::ListMatchesResponse* resp) {
     if (!check_auth(ctx)) {
-        return grpc::Status(
-            grpc::StatusCode::UNAUTHENTICATED,
-            "Invalid API key"
-        );
+        return grpc::Status(grpc::StatusCode::UNAUTHENTICATED, "Invalid API key");
     }
 
     try {
-        const int page_size = req->page_size() > 0
-            ? req->page_size()
-            : 50;
+        const int page_size = req->page_size() > 0 ? req->page_size() : 50;
 
         int offset = 0;
 
@@ -92,10 +84,7 @@ grpc::Status MatchServiceImpl::ListMatches(
             try {
                 offset = std::stoi(req->page_token());
             } catch (const std::exception&) {
-                return grpc::Status(
-                    grpc::StatusCode::INVALID_ARGUMENT,
-                    "Invalid page token"
-                );
+                return grpc::Status(grpc::StatusCode::INVALID_ARGUMENT, "Invalid page token");
             }
         }
 
@@ -131,16 +120,8 @@ grpc::Status MatchServiceImpl::ListMatches(
 
         pqxx::work txn(db_.connection());
 
-        auto res = txn.exec_params(
-            sql,
-            req->start_date(),
-            req->end_date(),
-            req->map_name(),
-            req->player_hash(),
-            req->token_id(),
-            page_size,
-            offset
-        );
+        auto res = txn.exec_params(sql, req->start_date(), req->end_date(), req->map_name(), req->player_hash(),
+                                   req->token_id(), page_size, offset);
 
         for (const auto& row : res) {
             auto* match = resp->add_matches();
@@ -154,9 +135,7 @@ grpc::Status MatchServiceImpl::ListMatches(
         }
 
         if (static_cast<int>(res.size()) == page_size) {
-            resp->set_next_page_token(
-                std::to_string(offset + page_size)
-            );
+            resp->set_next_page_token(std::to_string(offset + page_size));
         }
 
         resp->set_total_count(0);
@@ -168,10 +147,7 @@ grpc::Status MatchServiceImpl::ListMatches(
     } catch (const std::exception& e) {
         spdlog::error("ListMatches: {}", e.what());
 
-        return grpc::Status(
-            grpc::StatusCode::INTERNAL,
-            e.what()
-        );
+        return grpc::Status(grpc::StatusCode::INTERNAL, e.what());
     }
 }
 
