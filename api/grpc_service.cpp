@@ -74,7 +74,7 @@ grpc::Status MatchServiceImpl::ListMatches(grpc::ServerContext* ctx, const match
     if (!check_auth(ctx)) return grpc::Status(grpc::StatusCode::UNAUTHENTICATED, "Invalid API key");
     try {
         std::string sql =
-            R"SELECT
+            R"(SELECT
                 id, 
                 mid, 
                 map_name, 
@@ -84,7 +84,7 @@ grpc::Status MatchServiceImpl::ListMatches(grpc::ServerContext* ctx, const match
                 FROM match_players 
                 WHERE match_id = matches.id) 
             FROM matches 
-            WHERE 1=1";
+            WHERE 1=1)";
 
         pqxx::params params;
         int param_index = 1;
@@ -101,22 +101,12 @@ grpc::Status MatchServiceImpl::ListMatches(grpc::ServerContext* ctx, const match
             params.append(req->map_name());
         }
         if (!req->player_hash().empty()) {
-<<<<<<< HEAD
-            sql +=
-                ""
-                " AND id
-                IN(SELECT match_id FROM match_players WHERE nid_hash = $
-                   ""
-                   " + std::to_string(param_index++) + ") ";
-                params.append(req->player_hash());
-=======
-            sql += R" AND id
+            sql += R"( AND id
                         IN (SELECT match_id 
                             FROM match_players 
-                            WHERE nid_hash = $" +
+                            WHERE nid_hash = $)" +
                    std::to_string(param_index++) + ")";
             params.append(req->player_hash());
->>>>>>> a2ca35c (string fix)
         }
         if (req->token_id() > 0) {
             sql += " AND token_id = $" + std::to_string(param_index++);
