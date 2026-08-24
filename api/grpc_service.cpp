@@ -96,35 +96,32 @@ grpc::Status MatchServiceImpl::ListMatches(grpc::ServerContext* ctx, const match
             sql += " AND match_start <= $" + std::to_string(param_index++) + "::timestamptz";
             params.append(req->end_date());
         }
-        if(!req->map_name().empty()) {
+        if (!req->map_name().empty()) {
             sql += " AND map_name = $" + std::to_string(param_index++);
             params.append(req->map_name());
         }
         if (!req->player_hash().empty()) {
-            sql += """ AND id
-                        IN (SELECT match_id 
-                            FROM match_players 
-                            WHERE nid_hash = $""" + std::to_string(param_index++) + ")";
-            params.append(req->player_hash());
+            sql +=
+                ""
+                " AND id
+                IN(SELECT match_id FROM match_players WHERE nid_hash = $
+                   ""
+                   " + std::to_string(param_index++) + ") ";
+                params.append(req->player_hash());
         }
         if (req->token_id() > 0) {
             sql += " AND token_id = $" + std::to_string(param_index++);
             params.append(req->token_id());
         }
-        int page_size = req->page_size() > 0 
-            ? req->page_size() 
-            : 50;
+        int page_size = req->page_size() > 0 ? req->page_size() : 50;
         int offset = 0;
         if (!req->page_token().empty()) {
             try {
                 offset = std::stoi(req->page_token());
             } catch (const std::exception&) {
-                return grpc::Status(
-                    grpc::StatusCode::INVALID_ARGUMENT,
-                    "Invalid page token"
-                );
+                return grpc::Status(grpc::StatusCode::INVALID_ARGUMENT, "Invalid page token");
             }
-        } 
+        }
         sql += " ORDER BY id DESC";
         sql += " LINIT $" + std::to_string(param_index++);
         param.append(page_size);
@@ -146,7 +143,7 @@ grpc::Status MatchServiceImpl::ListMatches(grpc::ServerContext* ctx, const match
         if (static_cast<int>(res.size()) == page_size) {
             resp->set_next_page_token(std::to_string(offset + page_size));
         }
-         
+
         resp->set_total_count(0);
         txn.commit();
         return grpc::Status::OK;
